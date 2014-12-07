@@ -16,7 +16,9 @@
 
 package com.android.systemui;
 
+
 import android.animation.ArgbEvaluator;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -36,9 +38,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.android.systemui.statusbar.policy.BatteryController;
+import org.meerkats.katkiss.*;
 
 import java.util.ArrayList;
 import android.net.Uri;
@@ -88,6 +93,7 @@ public class BatteryMeterView extends View implements DemoMode,
     private BatteryController mBatteryController;
     private boolean mPowerSaveEnabled;
 
+
     private int mDarkModeBackgroundColor;
     private int mDarkModeFillColor;
 
@@ -103,7 +109,6 @@ public class BatteryMeterView extends View implements DemoMode,
     private ArrayList<TextView> mLabelViews = new ArrayList<TextView>();
     protected boolean mBatteryAvailable = false;
 
-
     public BatteryMeterView(Context context) {
         this(context, null, 0);
     }
@@ -115,6 +120,7 @@ public class BatteryMeterView extends View implements DemoMode,
     public BatteryMeterView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
+        
         final Resources res = context.getResources();
         TypedArray atts = context.obtainStyledAttributes(attrs, R.styleable.BatteryMeterView,
                 defStyle, 0);
@@ -311,7 +317,6 @@ public class BatteryMeterView extends View implements DemoMode,
     @Override
     public void draw(Canvas c) {
        if(!mShowIcon) return;
-
         BatteryTracker tracker = mDemoMode ? mDemoTracker : mTracker;
         final int level = tracker.level;
 
@@ -601,6 +606,7 @@ public class BatteryMeterView extends View implements DemoMode,
     }
 
     protected void updateIconState()
+
     {
             boolean show =  mBatteryAvailable && mShowIcon;
             setVisibility(show? View.VISIBLE : View.GONE);

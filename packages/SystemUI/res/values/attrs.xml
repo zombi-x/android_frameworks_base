@@ -44,7 +44,8 @@
         <attr name="customConf" format="boolean" />
         <attr name="dockMode" format="boolean" />
         <attr name="frameColor" format="color" />
-    </declare-styleable>
+        <attr name="customConf" format="boolean" />
+        </declare-styleable>
     <declare-styleable name="Clock">
         <attr name="amPmStyle" format="enum">
             <enum name="normal" value="0" />
