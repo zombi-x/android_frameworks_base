@@ -241,6 +241,8 @@ public abstract class WindowOrientationListener {
     }
 
     abstract class OrientationJudge implements SensorEventListener {
+        protected long mTouchEndedTimestampNanos = Long.MIN_VALUE;
+
         // Number of nanoseconds per millisecond.
         protected static final long NANOS_PER_MS = 1000000;
 
@@ -299,6 +301,11 @@ public abstract class WindowOrientationListener {
 
         @Override
         public abstract void onSensorChanged(SensorEvent event);
+
+       public boolean touchEnded() {
+            final long now = SystemClock.elapsedRealtimeNanos(); // must compare with RTC and not with event.timestamp, event.timestamp can be skewed after sleep as it doesn't include sleep time on some platforms
+            return (now > mTouchEndedTimestampNanos + PROPOSAL_MIN_TIME_SINCE_TOUCH_END_NANOS); 
+        }
     }
 
     /**
@@ -967,7 +974,6 @@ public abstract class WindowOrientationListener {
 
     final class OrientationSensorJudge extends OrientationJudge {
         private boolean mTouching;
-        private long mTouchEndedTimestampNanos = Long.MIN_VALUE;
         private int mProposedRotation = -1;
         private int mDesiredRotation = -1;
         private boolean mRotationEvaluationScheduled;
@@ -1043,13 +1049,7 @@ public abstract class WindowOrientationListener {
         }
 
         private boolean isDesiredRotationAcceptableLocked(long now) {
-            if (mTouching) {
-                return false;
-            }
-            if (now < mTouchEndedTimestampNanos + PROPOSAL_MIN_TIME_SINCE_TOUCH_END_NANOS) {
-                return false;
-            }
-            return true;
+            return (!mTouching && touchEnded());
         }
 
         private void scheduleRotationEvaluationIfNecessaryLocked(long now) {
