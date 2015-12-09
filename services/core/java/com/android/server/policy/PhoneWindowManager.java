@@ -3191,7 +3191,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         // Display task switcher for ALT-TAB.
         if (down && repeatCount == 0 && keyCode == KeyEvent.KEYCODE_TAB) {
-            if (mRecentAppsHeldModifiers == 0 && !keyguardOn) {
+            if (mRecentAppsHeldModifiers == 0 && !keyguardOn && isUserSetupComplete()) {
                 final int shiftlessModifiers = event.getModifiers() & ~KeyEvent.META_SHIFT_MASK;
                 if (KeyEvent.metaStateHasModifiers(shiftlessModifiers, KeyEvent.META_ALT_ON)) {
                     mRecentAppsHeldModifiers = shiftlessModifiers;
@@ -6615,14 +6615,36 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void applyLidSwitchState() {
-        if (mLidState == LID_CLOSED && mLidControlsSleep) {
-            mPowerManager.goToSleep(SystemClock.uptimeMillis(),
-                    PowerManager.GO_TO_SLEEP_REASON_LID_SWITCH,
-                    PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
-        }
+        if (mLidControlsSleep) {
+            IDreamManager dreamManager = getDreamManager();
+            if (dreamManager != null) {
+                try {
+                    dreamManager.setLidState(mLidState);
+                } catch (RemoteException e) {
+                }
+            }
 
-        synchronized (mLock) {
-            updateWakeGestureListenerLp();
+            if (mLidState == LID_CLOSED) {
+                if (mFocusedWindow != null && (mFocusedWindow.getAttrs().flags
+                        & WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON) != 0) {
+                    // if an application requests that the screen be turned on
+                    // and there's a closed device cover, don't turn the screen off!
+                    return;
+                }
+
+                TelecomManager telephonyService = getTelecommService();
+                if (!(telephonyService == null
+                        || telephonyService.isRinging())) {
+                    mPowerManager.goToSleep(SystemClock.uptimeMillis(),
+                            PowerManager.GO_TO_SLEEP_REASON_LID_SWITCH,
+                            PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
+                }
+
+            }
+
+            synchronized (mLock) {
+                updateWakeGestureListenerLp();
+            }
         }
     }
 
