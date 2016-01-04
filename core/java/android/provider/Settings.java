@@ -3732,6 +3732,19 @@ public final class Settings {
         public static final String RECENTS_SHOW_SEARCH_BAR = "recents_show_search_bar";
 
         /**
+         * Whether the camera launch gesture should vibrate
+         *
+         * @hide
+         */
+        public static final String CAMERA_GESTURE_VIBRATE = "camera_gesture_vibrate";
+
+        /**
+         * Enable statusbar double tap gesture on to put device to sleep
+         * @hide
+         */
+        public static final String DOUBLE_TAP_SLEEP_GESTURE = "double_tap_sleep_gesture";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
@@ -5000,6 +5013,12 @@ public final class Settings {
          * @hide
          */
         public static final String KEYGUARD_QUICK_UNLOCK = "keyguard_quick_unlock";
+
+        /**
+         * Enable voice lockscreen shortcut
+         * @hide
+         */
+        public static final String LOCKSCREEN_VOICE_SHORTCUT = "lockscreen_voice_shortcut";
 
         /**
          * Whether lock pattern will vibrate as user enters (0 = false, 1 =
