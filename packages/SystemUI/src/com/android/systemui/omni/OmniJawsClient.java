@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2015 The OmniROM Project
+* Copyright (C) 2016 The OmniROM Project
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -119,7 +119,7 @@ public class OmniJawsClient {
         mEnabled = isOmniJawsServiceInstalled();
 
         if (mEnabled) {
-            settingsChanged();
+            updateSettings();
         }
     }
 
@@ -327,10 +327,10 @@ public class OmniJawsClient {
     }
 
     private String getWindUnit() {
-        return mMetric ? "km/h":"m/h";
+        return mMetric ? "km/h":"mph";
     }
 
-    public void settingsChanged() {
+    public void updateSettings() {
         if (mEnabled) {
             final String iconPack = Settings.System.getStringForUser(
                    mContext.getContentResolver(), Settings.System.STATUS_BAR_WEATHER_ICON_PACK, UserHandle.USER_CURRENT);

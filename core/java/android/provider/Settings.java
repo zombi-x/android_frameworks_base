@@ -3548,11 +3548,24 @@ public final class Settings {
         public static final String STATUSBAR_BATTERY_CHARGING_IMAGE = "statusbar_battery_charging_image";
 
         /**
-         * int value of the color to use when charging -1 disabled
+         * int value of the color to use when charging
          *
          * @hide
          */
         public static final String STATUSBAR_BATTERY_CHARGING_COLOR = "statusbar_battery_charging_color";
+        /**
+         * enable color when charging
+         *
+         * @hide
+         */
+        public static final String STATUSBAR_BATTERY_CHARGING_COLOR_ENABLE = "statusbar_battery_charging_color_enable";
+
+        /**
+         * when to show battery - values are 0/none 1/always 2/expanded default is 1/always
+         *
+         * @hide
+         */
+        public static final String STATUSBAR_BATTERY_ENABLE = "statusbar_battery_enable";
 
         /**
          * Custom button brightness value for manual mode
@@ -3586,6 +3599,16 @@ public final class Settings {
          * @hide
          */
         public static final String BUTTON_BACKLIGHT_TIMEOUT = "button_backlight_timeout";
+
+        /**
+         * @hide
+         */
+        public static final String BUTTON_BACK_KILL_TIMEOUT = "button_back_kill_timeout";
+
+        /**
+         * @hide
+         */
+        public static final String BUTTON_BACK_KILL_ENABLE = "button_back_kill_enable";
 
         /**
          * Show onscreen keys for hw button devices
@@ -3666,6 +3689,13 @@ public final class Settings {
          * @hide
          */
         public static final String STATUS_BAR_CUSTOM_HEADER = "status_bar_custom_header";
+
+        /**
+         * Whether to apply a shadow on top of the header image
+         * value is the alpha value of the shadow image is 0 -> no shadow -> 255 black
+         * @hide
+         */
+        public static final String STATUS_BAR_CUSTOM_HEADER_SHADOW = "status_bar_custom_header_shadow";
 
         /**
          * header image package to use for daylight header - package name - null if default
@@ -3760,6 +3790,81 @@ public final class Settings {
          * @hide
          */
         public static final String ENABLE_TABLET_NAVIGATION = "enable_tablet_navigation";
+
+        /**
+         * @hide
+         */
+        public static final String QS_TILE_EQUAL = "qs_tile_equal";
+
+        /**
+         * @hide
+         */
+        public static final String QS_TILE_COLUMNS = "qs_tile_columns";
+
+        /**
+         * @hide
+         */
+        public static final String QS_TILE_BG_OPACITY = "qs_tile_bg_opacity";
+
+        /**
+         * @hide
+         */
+        public static final String GLOBAL_ACTIONS_LIST = "global_actions_list";
+
+        /**
+         * @hide
+         */
+        public static final String LOCK_CLOCK_FONT = "lock_clock_font";
+
+        /**
+         * @hide
+         */
+        public static final String LOCK_CLOCK_COLOR = "lock_clock_color";
+
+         /**
+         * @hide
+         */
+        public static final String LOCK_CLOCK_SHADOW = "lockscreen_clock_shadow";
+
+        /**
+         * @hide
+         */
+        public static final String LOCK_CLOCK_SIZE = "lock_clock_size";
+
+         /**
+         * @hide
+         */
+        public static final String LOCK_CLOCK_ENABLE = "lockscreen_clock_enable";
+
+        /**
+         * bitfield for show time/date/alarm
+         * 0 hide completely
+         *
+         * @hide
+         */
+        public static final int LOCK_CLOCK_TIME =  1;
+        /**
+         * @hide
+         */
+        public static final int LOCK_CLOCK_DATE =  2;
+        /**
+         * @hide
+         */
+        public static final int LOCK_CLOCK_ALARM = 4;
+        /**
+         * @hide
+         */
+        public static final int LOCK_CLOCK_NONE = 0;
+        /**
+         * @hide
+         */
+        public static final int LOCK_CLOCK_ALL = LOCK_CLOCK_TIME | LOCK_CLOCK_DATE | LOCK_CLOCK_ALARM;
+
+        /**
+         * @hide
+         */
+        public static final String LOCK_CLOCK_DISPLAY = "lockscreen_clock_display";
+
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -5036,6 +5141,11 @@ public final class Settings {
          * @hide
          */
         public static final String LOCKSCREEN_VOICE_SHORTCUT = "lockscreen_voice_shortcut";
+
+        /**
+         * @hide
+         */
+        public static final String LOCK_SHORTCUTS_ENABLE = "lockscreen_shortcuts_enable";
 
         /**
          * Whether lock pattern will vibrate as user enters (0 = false, 1 =
