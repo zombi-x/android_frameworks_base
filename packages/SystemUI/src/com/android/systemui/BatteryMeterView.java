@@ -40,15 +40,8 @@ import android.view.View;
 
 import com.android.systemui.statusbar.policy.BatteryController;
 
-import java.util.ArrayList;
-import android.net.Uri;
-import android.util.Log;
-import android.widget.TextView;
-import org.meerkats.katkiss.*;
-
-
 public class BatteryMeterView extends View implements DemoMode,
-        BatteryController.BatteryStateChangeCallback, CustomObserver.ChangeNotification  {
+        BatteryController.BatteryStateChangeCallback {
     public static final String TAG = BatteryMeterView.class.getSimpleName();
     public static final String ACTION_LEVEL_TEST = "com.android.systemui.BATTERY_LEVEL_TEST";
     public static final String SHOW_PERCENT_SETTING = "status_bar_show_battery_percent";
@@ -97,13 +90,6 @@ public class BatteryMeterView extends View implements DemoMode,
     private BatteryTracker mTracker = new BatteryTracker();
     private final SettingObserver mSettingObserver = new SettingObserver();
 
-    private boolean mShowIcon = true, mShowText = false, mShowTextPercent = false;
-    private boolean mCustomConf;
-    private boolean mDockMode = false;
-    private ArrayList<TextView> mLabelViews = new ArrayList<TextView>();
-    protected boolean mBatteryAvailable = false;
-
-
     public BatteryMeterView(Context context) {
         this(context, null, 0);
     }
@@ -118,15 +104,6 @@ public class BatteryMeterView extends View implements DemoMode,
         final Resources res = context.getResources();
         TypedArray atts = context.obtainStyledAttributes(attrs, R.styleable.BatteryMeterView,
                 defStyle, 0);
-
-        mCustomConf = atts.getBoolean(R.styleable.BatteryMeterView_customConf, false);
-        if(mCustomConf)
-        {
-               refreshConf();
-               new CustomObserver(context, this);
-        }
-        mDockMode = atts.getBoolean(R.styleable.BatteryMeterView_dockMode, false);
-
         final int frameColor = atts.getColor(R.styleable.BatteryMeterView_frameColor,
                 context.getColor(R.color.batterymeter_frame_color));
         TypedArray levels = res.obtainTypedArray(R.array.batterymeter_color_levels);
@@ -193,17 +170,14 @@ public class BatteryMeterView extends View implements DemoMode,
         super.onAttachedToWindow();
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(mDockMode  ? Intent.ACTION_DOCK_BATTERY_CHANGED : Intent.ACTION_BATTERY_CHANGED);
+        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
         filter.addAction(ACTION_LEVEL_TEST);
         final Intent sticky = getContext().registerReceiver(mTracker, filter);
         if (sticky != null) {
             // preload the battery level
             mTracker.onReceive(getContext(), sticky);
         }
-        if(mBatteryController != null) mBatteryController.addStateChangedCallback(this);
-        updateLabel();
-        updateIconState();
-
+        mBatteryController.addStateChangedCallback(this);
         getContext().getContentResolver().registerContentObserver(
                 Settings.System.getUriFor(SHOW_PERCENT_SETTING), false, mSettingObserver);
     }
@@ -213,7 +187,7 @@ public class BatteryMeterView extends View implements DemoMode,
         super.onDetachedFromWindow();
 
         getContext().unregisterReceiver(mTracker);
-        if(mBatteryController != null) mBatteryController.removeStateChangedCallback(this);
+        mBatteryController.removeStateChangedCallback(this);
         getContext().getContentResolver().unregisterContentObserver(mSettingObserver);
     }
 
@@ -310,8 +284,6 @@ public class BatteryMeterView extends View implements DemoMode,
 
     @Override
     public void draw(Canvas c) {
-       if(!mShowIcon) return;
-
         BatteryTracker tracker = mDemoMode ? mDemoTracker : mTracker;
         final int level = tracker.level;
 
@@ -499,7 +471,7 @@ public class BatteryMeterView extends View implements DemoMode,
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (action.equals(Intent.ACTION_BATTERY_CHANGED) || action.equals(Intent.ACTION_DOCK_BATTERY_CHANGED) ) {
+            if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
                 if (testmode && ! intent.getBooleanExtra("testmode", false)) return;
 
                 level = (int)(100f
@@ -507,22 +479,18 @@ public class BatteryMeterView extends View implements DemoMode,
                         / intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100));
 
                 plugType = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
+                plugged = plugType != 0;
                 health = intent.getIntExtra(BatteryManager.EXTRA_HEALTH,
                         BatteryManager.BATTERY_HEALTH_UNKNOWN);
                 status = intent.getIntExtra(BatteryManager.EXTRA_STATUS,
                         BatteryManager.BATTERY_STATUS_UNKNOWN);
-                plugged = plugType != 0 || status == BatteryManager.BATTERY_STATUS_CHARGING;
                 technology = intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY);
                 voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
                 temperature = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0);
-                mBatteryAvailable = level != BatteryTracker.UNKNOWN_LEVEL;
-                
+
                 setContentDescription(
                         context.getString(R.string.accessibility_battery_level, level));
                 postInvalidate();
-                updateLabel();
-                updateIconState();
-
             } else if (action.equals(ACTION_LEVEL_TEST)) {
                 testmode = true;
                 post(new Runnable() {
@@ -572,59 +540,4 @@ public class BatteryMeterView extends View implements DemoMode,
         }
     }
 
-    private void refreshConf() {
-        mShowIcon = Settings.System.getInt(mContext.getContentResolver(), KKC.S.SYSTEMUI_BATTERY_ICON, 1) == 1;
-        mShowText = Settings.System.getInt(mContext.getContentResolver(), KKC.S.SYSTEMUI_BATTERY_TEXT, 1) == 1;
-        mShowTextPercent = Settings.System.getInt(mContext.getContentResolver(), KKC.S.SYSTEMUI_BATTERY_TEXT_PERCENT, 1) == 1;
-        mShowPercent = Settings.System.getInt(mContext.getContentResolver(), KKC.S.NATIVE_BATTERY_TEXT_ON_ICON, 0) == 1;
-    }
-
-    public void addLabelView(TextView v) { mLabelViews.add(v); updateLabel(); }
-
-    public void updateLabel()
-    {
-        int N = mLabelViews.size();
-        for (int i = 0; i < N; i++) {
-            TextView v = mLabelViews.get(i);
-
-            boolean show =  mBatteryAvailable && mShowText;
-            v.setVisibility(show? View.VISIBLE : View.GONE);
-
-            if(show) {
-
-              String label = "" + mTracker.level;
-              if (mShowTextPercent) label += "%";
-              v.setTextColor(getColorForLevel(mTracker.level));
-              v.setText(label);
-            }
-        }
-    }
-
-    protected void updateIconState()
-    {
-            boolean show =  mBatteryAvailable && mShowIcon;
-            setVisibility(show? View.VISIBLE : View.GONE);
-    }
-
- // CustomObserver ChangeNotifications
-    @Override
-    public ArrayList<Uri> getObservedUris()
-    {
-      ArrayList<Uri> uris = new  ArrayList<Uri>();
-      uris.add(Settings.System.getUriFor(KKC.S.SYSTEMUI_BATTERY_ICON));
-      uris.add(Settings.System.getUriFor(KKC.S.SYSTEMUI_BATTERY_TEXT));
-      uris.add(Settings.System.getUriFor(KKC.S.SYSTEMUI_BATTERY_TEXT_PERCENT));
-      uris.add(Settings.System.getUriFor(KKC.S.NATIVE_BATTERY_TEXT_ON_ICON));
-      return uris;
-    }
-
-    @Override
-    public void onChangeNotification(Uri uri)
-    {
-      Log.d(TAG, "onChangeNotification:" + uri);
-      refreshConf();
-      updateIconState();
-      updateLabel();
-      invalidate();
-    }
 }

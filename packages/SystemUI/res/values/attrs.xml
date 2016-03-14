@@ -42,8 +42,6 @@
         <attr name="orientation" />
     </declare-styleable>
     <declare-styleable name="BatteryMeterView">
-        <attr name="customConf" format="boolean" />
-        <attr name="dockMode" format="boolean" />
         <attr name="frameColor" format="color" />
     </declare-styleable>
     <declare-styleable name="Clock">
