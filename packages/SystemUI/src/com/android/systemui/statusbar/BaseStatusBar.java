@@ -89,7 +89,6 @@ import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.statusbar.StatusBarIconList;
 import com.android.internal.util.NotificationColorUtil;
 import com.android.internal.widget.LockPatternUtils;
-import com.android.systemui.BatteryMeterView;
 import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.systemui.DejankUtils;
 import com.android.systemui.R;
@@ -100,10 +99,8 @@ import com.android.systemui.assist.AssistManager;
 import com.android.systemui.recents.Recents;
 import com.android.systemui.statusbar.NotificationData.Entry;
 import com.android.systemui.statusbar.phone.NavigationBarView;
-import com.android.systemui.statusbar.phone.PhoneStatusBarView;
 import com.android.systemui.statusbar.phone.NotificationGroupManager;
 import com.android.systemui.statusbar.phone.StatusBarKeyguardViewManager;
-import com.android.systemui.statusbar.policy.BatteryController;
 import com.android.systemui.statusbar.policy.HeadsUpManager;
 import com.android.systemui.statusbar.policy.PreviewInflater;
 import com.android.systemui.statusbar.stack.NotificationStackScrollLayout;
@@ -2198,16 +2195,4 @@ public abstract class BaseStatusBar extends SystemUI implements
             mAssistManager.startAssist(args);
         }
     }
-	public static void updateBatteryView(View v, int batteryViewID, int batteryLevelViewID, BatteryController ctrl) 
-	{
-		if(v == null) return;
-        BatteryMeterView batteryView = ((BatteryMeterView) v.findViewById(batteryViewID));
-        if(batteryView == null) return;      
-    	batteryView.setBatteryController(ctrl);
-
-        TextView batteryLevel = ((TextView) v.findViewById(batteryLevelViewID));
-        if(batteryLevel == null) return;        
-        batteryView.addLabelView(batteryLevel);
-		
-	}
 }
