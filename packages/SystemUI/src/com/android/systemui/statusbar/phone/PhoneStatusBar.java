@@ -1043,17 +1043,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mUserInfoController.reloadUserInfo();
 
         mHeader.setBatteryController(mBatteryController);
-        BatteryMeterView statusBarBatteryView = ((BatteryMeterView) mStatusBarView.findViewById(R.id.battery));
-        TextView statusBarBatteryLevel = ((TextView) mStatusBarView.findViewById(R.id.battery_level));
-
-        if(statusBarBatteryView != null)
-        {
-        	statusBarBatteryView.setBatteryController(mBatteryController);
-        	statusBarBatteryView.addLabelView(statusBarBatteryLevel);
-        }
-        
+        ((BatteryMeterView) mStatusBarView.findViewById(R.id.battery)).setBatteryController(
+                mBatteryController);
         mKeyguardStatusBar.setBatteryController(mBatteryController);
-        
         mHeader.setNextAlarmController(mNextAlarmController);
 
         PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);

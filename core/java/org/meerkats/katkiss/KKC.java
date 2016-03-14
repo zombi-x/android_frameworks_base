@@ -11,6 +11,7 @@ public final class KKC {
     public static final String NATIVE_BATTERY_TEXT_ON_ICON = "status_bar_show_battery_percent";
     public static final String SYSTEMUI_BATTERY_TEXT_PERCENT = "kk_ui_battery_text_percent";
     
+
   }
 
   }

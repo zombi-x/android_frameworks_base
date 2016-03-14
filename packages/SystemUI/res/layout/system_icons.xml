@@ -15,7 +15,7 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:systemui="http://schemas.android.com/apk/res/com.android.systemui"    
+    xmlns:systemui="http://schemas.android.com/apk/res-auto"
     android:id="@+id/system_icons"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
@@ -72,4 +72,3 @@
             android:textSize="@dimen/battery_level_text_size"
             android:importantForAccessibility="noHideDescendants"/>    
 </LinearLayout>
-
