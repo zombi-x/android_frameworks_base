@@ -30,6 +30,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.MathUtils;
 import android.view.MotionEvent;
@@ -46,6 +48,7 @@ import android.widget.TextView;
 
 import com.android.internal.logging.MetricsLogger;
 import com.android.keyguard.KeyguardStatusView;
+import com.android.keyguard.omni.CustomLockClock;
 import com.android.systemui.DejankUtils;
 import com.android.systemui.EventLogConstants;
 import com.android.systemui.EventLogTags;
@@ -98,7 +101,7 @@ public class NotificationPanelView extends PanelView implements
     private QSPanel mQsPanel;
     private KeyguardStatusView mKeyguardStatusView;
     private ObservableScrollView mScrollView;
-    private TextView mClockView;
+    private CustomLockClock mClockView;
     private View mReserveNotificationSpace;
     private View mQsNavbarScrim;
     private NotificationsQuickSettingsContainer mNotificationContainerParent;
@@ -235,7 +238,7 @@ public class NotificationPanelView extends PanelView implements
         mKeyguardStatusView = (KeyguardStatusView) findViewById(R.id.keyguard_status_view);
         mQsContainer = (QSContainer) findViewById(R.id.quick_settings_container);
         mQsPanel = (QSPanel) findViewById(R.id.quick_settings_panel);
-        mClockView = (TextView) findViewById(R.id.clock_view);
+        mClockView = (CustomLockClock) findViewById(R.id.clock_view);
         mScrollView = (ObservableScrollView) findViewById(R.id.scroll_view);
         mScrollView.setListener(this);
         mScrollView.setFocusable(false);
@@ -408,7 +411,8 @@ public class NotificationPanelView extends PanelView implements
                     mNotificationStackScroller.getNotGoneChildCount(),
                     getHeight(),
                     mKeyguardStatusView.getHeight(),
-                    mEmptyDragAmount);
+                    mEmptyDragAmount,
+                    mKeyguardStatusView.isTimeVisible());
             mClockPositionAlgorithm.run(mClockPositionResult);
             if (animate || mClockAnimator != null) {
                 startClockAnimation(mClockPositionResult.clockY);
@@ -983,6 +987,7 @@ public class NotificationPanelView extends PanelView implements
             mStatusBar.setQsExpanded(expanded);
             mQsPanel.setExpanded(expanded);
             mNotificationContainerParent.setQsExpanded(expanded);
+            mHeader.setQsExpanded(expanded);
         }
     }
 
@@ -2449,5 +2454,18 @@ public class NotificationPanelView extends PanelView implements
         ActivityManager am = getContext().getSystemService(ActivityManager.class);
         List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
         return !tasks.isEmpty() && pkgName.equals(tasks.get(0).topActivity.getPackageName());
+    }
+
+    private void setQSBackgroundAlpha(int alpha) {
+        if (mQsContainer != null) {
+            mQsContainer.getBackground().setAlpha(alpha);
+        }
+    }
+
+    public void updateSettings() {
+        final int qsAlphaValue = Settings.System.getIntForUser(
+                mContext.getContentResolver(), Settings.System.QS_TILE_BG_OPACITY, 255,
+                UserHandle.USER_CURRENT);
+        setQSBackgroundAlpha(qsAlphaValue);
     }
 }
