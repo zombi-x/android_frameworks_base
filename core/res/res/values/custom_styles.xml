@@ -22,4 +22,8 @@
         <item name="windowEnterAnimation">@anim/slide_in_up</item>
         <item name="windowExitAnimation">@anim/slide_out_down</item>
     </style>
+    <style name="GlobalActionsAnimationTop">
+        <item name="windowEnterAnimation">@anim/slide_in_down</item>
+        <item name="windowExitAnimation">@anim/slide_out_up</item>
+    </style>
 </resources>
