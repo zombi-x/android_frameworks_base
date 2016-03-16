@@ -73,35 +73,6 @@ public class DozeParameters {
         return values != 0;
     }
 
-    public boolean getPocketMode() {
-        final int values = Settings.System.getIntForUser(mContext.getContentResolver(),
-               Settings.System.DOZE_POCKET_MODE, 0,
-                    UserHandle.USER_CURRENT);
-        return values != 0;
-    }
-
-    public boolean getShakeMode() {
-        final int values = Settings.System.getIntForUser(mContext.getContentResolver(),
-               Settings.System.DOZE_SHAKE_MODE, 0,
-                    UserHandle.USER_CURRENT);
-        return values != 0;
-    }
-
-    public boolean getTimeMode() {
-        final int values = Settings.System.getIntForUser(mContext.getContentResolver(),
-               Settings.System.DOZE_TIME_MODE, 0,
-                    UserHandle.USER_CURRENT);
-        return values != 0;
-    }
-
-    public boolean getFullMode() {
-        return getTimeMode() && getPocketMode();
-    }
-
-    public boolean getHalfMode() {
-        return !getTimeMode() && getPocketMode();
-    }
-
     public boolean getDisplayStateSupported() {
         return getBoolean("doze.display.supported", R.bool.doze_display_state_supported);
     }
@@ -111,27 +82,35 @@ public class DozeParameters {
     }
 
     public int getPulseInDuration(boolean pickup) {
-        return pickup
+        int defaultValue = pickup
                 ? getInt("doze.pulse.duration.in.pickup", R.integer.doze_pulse_duration_in_pickup)
                 : getInt("doze.pulse.duration.in", R.integer.doze_pulse_duration_in);
+        if (getOverwriteValue()) {
+            return Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.DOZE_PULSE_DURATION_IN, defaultValue,
+                    UserHandle.USER_CURRENT);
+        }
+        return defaultValue;
     }
 
     public int getPulseVisibleDuration() {
+        int defaultValue = getInt("doze.pulse.duration.visible", R.integer.doze_pulse_duration_visible);
         if (getOverwriteValue()) {
             return Settings.System.getIntForUser(mContext.getContentResolver(),
-                Settings.System.DOZE_PULSE_DURATION_VISIBLE, R.integer.doze_pulse_duration_visible,
+                Settings.System.DOZE_PULSE_DURATION_VISIBLE, defaultValue,
                     UserHandle.USER_CURRENT);
         }
-        return getInt("doze.pulse.duration.visible", R.integer.doze_pulse_duration_visible);
+        return defaultValue;
     }
 
     public int getPulseOutDuration() {
+        int defaultValue = getInt("doze.pulse.duration.out", R.integer.doze_pulse_duration_out);
         if (getOverwriteValue()) {
             return Settings.System.getIntForUser(mContext.getContentResolver(),
-                Settings.System.DOZE_PULSE_DURATION_OUT, R.integer.doze_pulse_duration_out,
+                Settings.System.DOZE_PULSE_DURATION_OUT, defaultValue,
                     UserHandle.USER_CURRENT);
         }
-        return getInt("doze.pulse.duration.out", R.integer.doze_pulse_duration_out);
+        return defaultValue;
     }
 
     public boolean getPulseOnSigMotion() {
@@ -159,13 +138,14 @@ public class DozeParameters {
     }
 
     public boolean getPulseOnNotifications() {
-        if (getOverwriteValue() || setUsingAccelerometerAsSensorPickUp()) {
+        boolean defaultValue = getBoolean("doze.pulse.notifications", R.bool.doze_pulse_on_notifications);
+        if (getOverwriteValue()) {
             final int values = Settings.System.getIntForUser(mContext.getContentResolver(),
-                   Settings.System.DOZE_PULSE_ON_NOTIFICATIONS, 1,
+                   Settings.System.DOZE_PULSE_ON_NOTIFICATIONS, defaultValue ? 1 : 0,
                     UserHandle.USER_CURRENT);
             return values != 0;
         }
-        return getBoolean("doze.pulse.notifications", R.bool.doze_pulse_on_notifications);
+        return defaultValue;
     }
 
     public PulseSchedule getPulseSchedule() {
@@ -184,19 +164,6 @@ public class DozeParameters {
         return getInt("doze.pickup.vibration.threshold", R.integer.doze_pickup_vibration_threshold);
     }
 
-    public int getShakeAccelerometerThreshold() {
-        if (getOverwriteValue()) {
-            return Settings.System.getIntForUser(mContext.getContentResolver(),
-                Settings.System.DOZE_SHAKE_ACC_THRESHOLD, R.integer.doze_shake_accelerometer_threshold,
-                    UserHandle.USER_CURRENT);
-        }
-        return getInt("doze.shake.acc.threshold", R.integer.doze_shake_accelerometer_threshold);
-    }
-
-    public boolean setUsingAccelerometerAsSensorPickUp() {
-        return getBoolean("doze.use.accelerometer", com.android.internal.R.bool.config_dozeUseAccelerometer);
-    }
-
     private boolean getBoolean(String propName, int resId) {
         return SystemProperties.getBoolean(propName, mContext.getResources().getBoolean(resId));
     }
@@ -211,7 +178,7 @@ public class DozeParameters {
     }
 
     public int getDozeBrightness() {
-	final int dozeBrightnessDefault = mContext.getResources().getInteger(
+	    final int dozeBrightnessDefault = mContext.getResources().getInteger(
                     com.android.internal.R.integer.config_screenBrightnessDoze);
         if (getOverwriteValue()) {
             return Settings.System.getIntForUser(mContext.getContentResolver(),

@@ -33,6 +33,7 @@ import android.graphics.Rect;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.MathUtils;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -207,6 +208,7 @@ public class NotificationPanelView extends PanelView implements
     private boolean mHeadsUpAnimatingAway;
     private boolean mLaunchingAffordance;
     private String mLastCameraLaunchSource = KeyguardBottomAreaView.CAMERA_LAUNCH_SOURCE_AFFORDANCE;
+    private float mLastAlpha = -1;
 
     private Runnable mHeadsUpExistenceChangedRunnable = new Runnable() {
         @Override
@@ -258,6 +260,7 @@ public class NotificationPanelView extends PanelView implements
         mDozeAnimationInterpolator = AnimationUtils.loadInterpolator(getContext(),
                 android.R.interpolator.linear_out_slow_in);
         mKeyguardBottomArea = (KeyguardBottomAreaView) findViewById(R.id.keyguard_bottom_area);
+
         mQsNavbarScrim = findViewById(R.id.qs_navbar_scrim);
         mAfforanceHelper = new KeyguardAffordanceHelper(this, getContext());
         mLastOrientation = getResources().getConfiguration().orientation;
@@ -1746,6 +1749,15 @@ public class NotificationPanelView extends PanelView implements
 
     private void updateKeyguardBottomAreaAlpha() {
         float alpha = Math.min(getKeyguardContentsAlpha(), 1 - getQsExpansionFraction());
+        if (mLastAlpha == alpha) {
+            return;
+        }
+        mLastAlpha = alpha;
+        if (alpha == 0f) {
+            mKeyguardBottomArea.setVisibility(View.GONE);
+        } else if (mKeyguardBottomArea.getVisibility() == View.GONE) {
+            mKeyguardBottomArea.setVisibility(View.VISIBLE);
+        }
         mKeyguardBottomArea.setAlpha(alpha);
         mKeyguardBottomArea.setImportantForAccessibility(alpha == 0f
                 ? IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
@@ -1843,6 +1855,7 @@ public class NotificationPanelView extends PanelView implements
         if (mStatusBar.getBarState() == StatusBarState.KEYGUARD
                 || mStatusBar.getBarState() == StatusBarState.SHADE_LOCKED) {
             mAfforanceHelper.animateHideLeftRightIcon();
+            mKeyguardBottomArea.hideShortcutsContainer();
         }
         mNotificationStackScroller.onPanelTrackingStarted();
     }
@@ -1859,6 +1872,7 @@ public class NotificationPanelView extends PanelView implements
                 || mStatusBar.getBarState() == StatusBarState.SHADE_LOCKED)) {
             if (!mHintAnimationRunning) {
                 mAfforanceHelper.reset(true);
+                mKeyguardBottomArea.showShortcutsContainer();
             }
         }
         if (!expand && (mStatusBar.getBarState() == StatusBarState.KEYGUARD
@@ -2037,6 +2051,11 @@ public class NotificationPanelView extends PanelView implements
                 mStatusBar.onPhoneHintStarted();
             }
         }
+    }
+
+    @Override
+    public void onIconLongClicked(boolean rightIcon) {
+        // empty for a reason
     }
 
     @Override
